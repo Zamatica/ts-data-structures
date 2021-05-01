@@ -48,6 +48,20 @@ function test_each(list: LinkedList<number>): boolean {
     return result;
 }
 
+function test_arrayConstructor(_: LinkedList<number>): boolean {
+    const arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    const list = new LinkedList<number>(arr);
+
+    list.each(function(value, i) {
+        if (value !== arr[i]) {
+            return false;
+        }
+    });
+
+    return true;
+}
+
 function test_pop(list: LinkedList<number>): boolean {
     fill_list(list);
 
@@ -292,6 +306,7 @@ export default function(): boolean {
     const test_funcs: ((list: LinkedList<number>) => boolean)[] = [
         test_push,
         test_each,
+        test_arrayConstructor,
         test_pop,
         test_popFront,
         test_has,

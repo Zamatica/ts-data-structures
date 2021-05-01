@@ -250,13 +250,10 @@ export class LinkedList<T> {
             fn = fn.bind(thisArg);
         }
 
-        let i = 0;
-        for (const data of this) {
+        for (const [data, i] of this.entries()) {
             if (fn(data, i, this) === true) {
                 return data;
             }
-
-            ++i;
         }
 
         return undefined;
@@ -275,12 +272,10 @@ export class LinkedList<T> {
             fn = fn.bind(thisArg);
         }
 
-        let i = 0;
-        for (const data of this) {
+        for (const [data, i] of this.entries()) {
             if (fn(data, i, this) === true) {
                 filtered_list.push(data);
             }
-            ++i;
         }
 
         return filtered_list;
@@ -296,10 +291,8 @@ export class LinkedList<T> {
             fn = fn.bind(thisArg);
         }
 
-        let i = 0;
-        for (const data of this) {
+        for (const [data, i] of this.entries()) {
             fn(data, i, this);
-            ++i;
         }
     }
 
@@ -356,6 +349,22 @@ export class LinkedList<T> {
      */
     values(): T[] {
         return this.toArray();
+    }
+
+    /**
+     * Iterates over the List with the index of the node
+     * @returns {Generator<[T, number], Any, Any>}     A generator for [value, index] iteration
+     */
+    *entries(): Generator<[T, number], Any, Any> {
+        let temp: ListNode<T> | null = this.head;
+
+        let index = 0;
+        while (temp !== null) {
+            yield [temp.data, index];
+
+            temp = temp.next;
+            ++index;
+        }
     }
 
     // --------------- PRIVATE --------------- //

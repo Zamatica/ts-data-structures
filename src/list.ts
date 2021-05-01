@@ -208,11 +208,13 @@ export class LinkedList<T> {
      * @param {LinkedList<T>}   other     The list to append to this
      * @returns                           A new shallow copied LinkedList containing the two list
      */
-    concat(other: LinkedList<T>): LinkedList<T> {
+    concat(...lists: LinkedList<T>[]): LinkedList<T> {
         const final_list: LinkedList<T> = this.clone();
 
-        for (const data of other) {
-            final_list.push(data);
+        for (const other of lists) {
+            for (const data of other) {
+                final_list.push(data);
+            }
         }
 
         return final_list;

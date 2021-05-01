@@ -175,13 +175,18 @@ function test_equals(list: LinkedList<number>): boolean {
 
 function test_concat(list: LinkedList<number>): boolean {
     fill_list(list);
-    const other: LinkedList<number> = new LinkedList<number>();
+    const other_20_30: LinkedList<number> = new LinkedList<number>();
+    const other_30_40: LinkedList<number> = new LinkedList<number>();
 
-    for (let i = 20; i < 40; i++) {
-        other.push(i * i);
+    for (let i = 20; i < 30; i++) {
+        other_20_30.push(i * i);
     }
 
-    const final: LinkedList<number> = list.concat(other);
+    for (let i = 30; i < 40; i++) {
+        other_30_40.push(i * i);
+    }
+
+    const final: LinkedList<number> = list.concat(other_20_30, other_30_40);
 
     if (final.length !== 40) {
         return false;

@@ -205,8 +205,8 @@ export class LinkedList<T> {
 
     /**
      * Concats two LinkedList via shallow copy; Θ(other.length + this.length)
-     * @param {LinkedList<T>}   other     The list to append to this
-     * @returns                           A new shallow copied LinkedList containing the two list
+     * @param {...LinkedList<T>[]}   lists     The list to append to this
+     * @returns                                A new shallow copied LinkedList containing the two list
      */
     concat(...lists: LinkedList<T>[]): LinkedList<T> {
         const final_list: LinkedList<T> = this.clone();

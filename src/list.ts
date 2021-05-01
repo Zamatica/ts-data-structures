@@ -395,7 +395,7 @@ export class LinkedList<T> {
      * Iterates over the List's nodes, with index
      * @returns {Generator<[T, number], Any, Any>}     A generator for [ListNode<T>, index] iteration
      */
-    *nodes(): Generator<[ListNode<T>, number], Any, Any> {
+    private *nodes(): Generator<[ListNode<T>, number], Any, Any> {
         let temp: ListNode<T> | null = this.head;
 
         let index = 0;

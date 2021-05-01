@@ -3,7 +3,6 @@
  * @file       test_list.ts
  */
 
-import { lstat } from 'node:fs';
 import { LinkedList } from '../../src/list';
 
 
@@ -67,7 +66,7 @@ function test_pop(list: LinkedList<number>): boolean {
     return true;
 }
 
-function test_popFront(list: LinkedList<number>) {
+function test_popFront(list: LinkedList<number>): boolean {
     fill_list(list);
 
     let i_check: number = 0;
@@ -81,6 +80,8 @@ function test_popFront(list: LinkedList<number>) {
 
         ++i_check;
     }
+
+    return true;
 }
 
 function test_has(list: LinkedList<number>): boolean {
@@ -288,7 +289,7 @@ function test_values(list: LinkedList<number>): boolean {
 export default function(): boolean {
     const list: LinkedList<number> = new LinkedList<number>();
 
-    const test_funcs = [
+    const test_funcs: ((list: LinkedList<number>) => boolean)[] = [
         test_push,
         test_each,
         test_pop,

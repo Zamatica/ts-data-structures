@@ -307,15 +307,13 @@ export class LinkedList<T> {
     reduce(fn: (accumulator: T, currentvalue: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {
         let accumulator: Any | undefined = initialValue;
 
-        let i = 0;
-        for (const data of this) {
+        for (const [data, i] of this.entries()) {
             if (accumulator === undefined) {
                 accumulator = data;
                 continue;
             }
 
             accumulator = fn(accumulator, data, i, this);
-            ++i;
         }
 
         return accumulator;

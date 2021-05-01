@@ -4,7 +4,8 @@
   "description": "Common Data Structures in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "dev"
+    "test": "node build/test/main.js",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -13,6 +14,7 @@
   "author": "zamatica",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^15.0.1",
     "@typescript-eslint/parser": "^4.22.0",
     "typescript": "^4.2.4"
   },

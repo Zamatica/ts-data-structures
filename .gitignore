@@ -2,9 +2,8 @@
 .vscode/*
 
 # Project Related
-db/*
 build/*
-cfg/*
+build_test/*
 
 # Logs
 logs

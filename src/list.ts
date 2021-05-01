@@ -3,8 +3,8 @@
  * @file       list.ts
  */
 
-import { Any } from "@util/object";
-import { CompareFunc, CompareNumberFunc } from "@util/func";
+import { Any } from "./util/object";
+import { CompareFunc, CompareNumberFunc } from "./util/func";
 
 
 /**
@@ -42,13 +42,13 @@ export class LinkedList<T> {
      * First node of the list
      */
     private head: ListNode<T> | null;
-    get first(): T | null { return this.head === null ? null : this.head.data; }
+    first(): T | null { return this.head === null ? null : this.head.data; }
 
     /**
      * Last node of the list
      */
     private tail: ListNode<T> | null;
-    get last(): T | null { return this.tail === null ? null : this.tail.data}
+    last(): T | null { return this.tail === null ? null : this.tail.data}
 
     /**
      * Length of the List
@@ -68,7 +68,7 @@ export class LinkedList<T> {
 
         if (initData !== undefined) {
             for (const item of initData) {
-                this.pushFront(item);
+                this.push(item);
             }
         }
     }
@@ -90,6 +90,7 @@ export class LinkedList<T> {
 
             this.tail = new_tail;
         }
+        ++this._length;
     }
 
     /**
@@ -105,6 +106,7 @@ export class LinkedList<T> {
         if (this.tail === null) {
             this.tail = this.head;
         }
+        ++this._length;
     }
 
     /**
@@ -133,7 +135,7 @@ export class LinkedList<T> {
             return lhs === rhs;
         }
 
-        for (const [data] of this) {
+        for (const data of this) {
             if (compare_func(data, value)) {
                 return true;
             }
@@ -156,7 +158,7 @@ export class LinkedList<T> {
      * @returns {LinkedList<T>}     The new LinkedList cloned from the first
      */
     clone(): LinkedList<T> {
-        return new (this.constructor as Any)[Symbol.species](this);
+        return new LinkedList<T>(this.toArray());
     }
 
     /**
@@ -165,7 +167,7 @@ export class LinkedList<T> {
      */
     toArray(): T[] {
         const result: T[] = [];
-        for (const [data] of this) {
+        for (const data of this) {
             result.push(data);
         }
         return result;
@@ -209,7 +211,7 @@ export class LinkedList<T> {
     concat(other: LinkedList<T>): LinkedList<T> {
         const final_list: LinkedList<T> = this.clone();
 
-        for (const [data] of other) {
+        for (const data of other) {
             final_list.push(data);
         }
 
@@ -224,10 +226,14 @@ export class LinkedList<T> {
     sort(fn: CompareNumberFunc<T> | undefined = undefined): LinkedList<T> {
         const sorted_arr = this.toArray().sort(fn);
 
-        this.clear();
+        let node: ListNode<T> | null =  this.head;
+        let index: number = 0;
 
-        for (const item of sorted_arr) {
-            this.pushFront(item)
+        while (node !== null) {
+            node.data = sorted_arr[index];
+            
+            node = node.next;
+            ++index;
         }
 
         return this;
@@ -239,15 +245,18 @@ export class LinkedList<T> {
      * @param {LinkedList<T> | undefined}   thisArg      The object to work on
      * @returns {T | undefined}                          Matching data from the List, or undefined if nothing matches
      */
-    find(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined): T | undefined {
+    find(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): T | undefined {
         if (thisArg !== undefined) {
             fn = fn.bind(thisArg);
         }
 
-        for (const [data, i] of this) {
+        let i = 0;
+        for (const data of this) {
             if (fn(data, i, this) === true) {
                 return data;
             }
+
+            ++i;
         }
 
         return undefined;
@@ -259,16 +268,19 @@ export class LinkedList<T> {
      * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
      * @returns {LinkedList<T>}                          LinkedList of all objects matching the condition
      */
-    filter(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined): LinkedList<T> {
+    filter(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
         const filtered_list: LinkedList<T> = new LinkedList<T>();
         
         if (thisArg !== undefined) {
             fn = fn.bind(thisArg);
         }
-        for (const [data, i] of this) {
+
+        let i = 0;
+        for (const data of this) {
             if (fn(data, i, this) === true) {
                 filtered_list.push(data);
             }
+            ++i;
         }
 
         return filtered_list;
@@ -279,13 +291,15 @@ export class LinkedList<T> {
      * @param {Callback}                    fn           Callback for each object
      * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
      */
-    each(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => void, thisArg: LinkedList<T> | undefined = undefined): void {
+    each(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => void, thisArg: LinkedList<T> | undefined = undefined): void {
         if (thisArg !== undefined) {
             fn = fn.bind(thisArg);
         }
 
-        for (const [data, i] of this) {
+        let i = 0;
+        for (const data of this) {
             fn(data, i, this);
+            ++i;
         }
     }
 
@@ -298,32 +312,50 @@ export class LinkedList<T> {
     reduce(fn: (accumulator: T, currentvalue: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {
         let accumulator: Any | undefined = initialValue;
 
-        for (const [data, i] of this) {
+        let i = 0;
+        for (const data of this) {
             if (accumulator === undefined) {
                 accumulator = data;
                 continue;
             }
 
             accumulator = fn(accumulator, data, i, this);
+            ++i;
         }
 
         return accumulator;
     }
 
+    // --------------- INTERFACE --------------- //
+
     /**
      * Iterator method that allows the user of for..of and for..in
      * @yields {[T, number]}     [value of the node, index of the node]
      */
-    *[Symbol.iterator](): Generator<[T, number], Any, Any> {
+    *[Symbol.iterator](): Generator<T, Any, Any> {
         let temp: ListNode<T> | null = this.head;
 
-        let index: number = 0;
         while (temp !== null) {
-            yield [temp.data, index];
+            yield temp.data;
 
             temp = temp.next;
-            ++index;
         }
+    }
+
+    /**
+     * Gets a generator to iterate with .next()
+     * @returns {Generator<T, Any, Any>}     Generator to iterate the data in the LinkedList
+     */
+    iterator(): Generator<T, Any, Any> {
+        return this[Symbol.iterator]();
+    }
+
+    /**
+     * Gets an array of the objects stored in the List
+     * @returns {T[]}     Arry of the values stored in the list
+     */
+    values(): T[] {
+        return this.toArray();
     }
 
     // --------------- PRIVATE --------------- //
@@ -351,6 +383,10 @@ export class LinkedList<T> {
                 else {
                     data = temp.data;
                     prev.next = temp.next;
+
+                    if (prev.next === null) {
+                        this.tail = prev;
+                    }
                 }
 
                 --this._length;

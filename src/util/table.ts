@@ -1,6 +1,6 @@
 /**
  * @author     Zamatica
- * @file       hashtable.ts
+ * @file       table.ts
  */
 
 /**

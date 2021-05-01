@@ -291,6 +291,20 @@ function test_reduce(list: LinkedList<number>): boolean {
     return true;
 }
 
+function test_map(list: LinkedList<number>): boolean {
+    fill_list(list);
+
+    const other: LinkedList<number> = list.map(x => Math.sqrt(x));
+
+    for (const [data, i] of other.entries()) {
+        if (data !== i) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function test_values(list: LinkedList<number>): boolean {
     fill_list(list);
 
@@ -323,7 +337,8 @@ export default function(): boolean {
         test_find,
         test_filter,
         test_reduce,
-        test_values
+        test_map,
+        test_values,
     ];
 
     for (const func of test_funcs) {

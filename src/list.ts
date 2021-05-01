@@ -302,7 +302,7 @@ export class LinkedList<T> {
      * Reduces the LinkedList based on some operation to one value; Θ(n)
      * @param {Callback}          fn               The operation to reduce the List by
      * @param {any | undefined}   initialValue     The  initialValue of the accumulating value
-     * @returns                                  The result of the reduction
+     * @returns                                    The result of the reduction
      */
     reduce(fn: (accumulator: T, currentvalue: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {
         let accumulator: Any | undefined = initialValue;
@@ -319,6 +319,26 @@ export class LinkedList<T> {
         }
 
         return accumulator;
+    }
+
+    /**
+     * Transform each object by a provided function, returns a new LinkedList<T>; Θ(n)
+     * @param {Callback}                    fn          The operation to transform the List items by
+     * @param {LinkedList<T> | undefined}   thisArg     The object to work on
+     * @returns                                         new LinkedList<T> with the Results of the mapping
+     */
+    map(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => T, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
+        if (thisArg !== undefined) {
+            fn = fn.bind(thisArg);
+        }
+        
+        const result: LinkedList<T> = new LinkedList<T>();
+
+        for (const [data, i] of this.entries()) {
+            result.push(fn(data, i, this));
+        }
+
+        return result;
     }
 
     // --------------- INTERFACE --------------- //
@@ -370,6 +390,22 @@ export class LinkedList<T> {
     }
 
     // --------------- PRIVATE --------------- //
+
+    /**
+     * Iterates over the List's nodes, with index
+     * @returns {Generator<[T, number], Any, Any>}     A generator for [ListNode<T>, index] iteration
+     */
+    *nodes(): Generator<[ListNode<T>, number], Any, Any> {
+        let temp: ListNode<T> | null = this.head;
+
+        let index = 0;
+        while (temp !== null) {
+            yield [temp, index];
+
+            temp = temp.next;
+            ++index;
+        }
+    }
 
     /**
      * Removes a node from the list

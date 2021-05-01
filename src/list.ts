@@ -298,8 +298,8 @@ export class LinkedList<T> {
 
     /**
      * Reduces the LinkedList based on some operation to one value; Θ(n)
-     * @param {Callback}        fn               The operation to reduce the List by
-     * @param {any | undefined} initialValue     The  initialValue of the accumulating value
+     * @param {Callback}          fn               The operation to reduce the List by
+     * @param {any | undefined}   initialValue     The  initialValue of the accumulating value
      * @returns                                  The result of the reduction
      */
     reduce(fn: (accumulator: T, currentvalue: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {

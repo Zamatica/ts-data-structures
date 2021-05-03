@@ -5,6 +5,10 @@
 
 import { Any } from "./util/object";
 import { CompareFunc, CompareNumberFunc } from "./util/func";
+import { NaN } from './util/number';
+
+import { IterableStructure } from './iterableStructure'
+import { MathOperators } from './operators/math';
 
 
 /**
@@ -22,11 +26,21 @@ export interface ListNode<T> {
     next: ListNode<T> | null;
 }
 
+interface LinkedListMath<T> {
+    AddReturnType: LinkedList<T>;
+
+    SubtractReturnType: NaN;
+
+    MultipleReturnType: NaN;
+
+    DivideReturnType: NaN;
+}
 
 /**
  * Linked List Implementation
  */
-export class LinkedList<T> {
+export class LinkedList<T> implements IterableStructure<T>,
+                                      MathOperators<LinkedList<T>, LinkedListMath<T>> {
 
     /**
      * Creates a node for the List
@@ -339,13 +353,38 @@ export class LinkedList<T> {
         return result;
     }
 
+    // --------------- MATH --------------- //
+
+    add(rhs: LinkedList<T>): LinkedList<T> {
+        const result = this.clone();
+
+        return result.addEqual(rhs);
+    }
+
+    addEqual(rhs: LinkedList<T>): this {
+        for (const data of rhs) {
+            this.push(data);
+        }
+
+        return this;
+    }
+
+    subtract(): NaN { return NaN; }
+    subtractEqual(): this { return this; }
+
+    multiply(): NaN { return NaN; }
+    multiplyEqual(): this { return this; }
+
+    divide(): NaN { return NaN; }
+    divideEqual(): this { return this; }
+
     // --------------- INTERFACE --------------- //
 
     /**
      * Iterator method that allows the user of for..of and for..in
-     * @yields {[T, number]}     [value of the node, index of the node]
+     * @yields {T}     value of the Object stored
      */
-    *[Symbol.iterator](): Generator<T, Any, Any> {
+    *[Symbol.iterator](): IterableIterator<T> {
         let temp: ListNode<T> | null = this.head;
 
         while (temp !== null) {
@@ -357,9 +396,9 @@ export class LinkedList<T> {
 
     /**
      * Gets a generator to iterate with .next()
-     * @returns {Generator<T, Any, Any>}     Generator to iterate the data in the LinkedList
+     * @returns {IterableIterator<T>}     Generator to iterate the data in the LinkedList
      */
-    iterator(): Generator<T, Any, Any> {
+    iterator(): IterableIterator<T> {
         return this[Symbol.iterator]();
     }
 
@@ -375,7 +414,7 @@ export class LinkedList<T> {
      * Iterates over the List with the index of the node
      * @returns {Generator<[T, number], Any, Any>}     A generator for [value, index] iteration
      */
-    *entries(): Generator<[T, number], Any, Any> {
+    *entries(): IterableIterator<[T, number]> {
         let temp: ListNode<T> | null = this.head;
 
         let index = 0;

@@ -4,6 +4,7 @@
  */
 
 import { Any } from './util/object';
+import { CompareFunc, CompareNumberFunc } from './operators/comparison';
 
 export interface IterableStructure<T> {
 
@@ -30,5 +31,20 @@ export interface IterableStructure<T> {
      * @returns {IterableIterator<[T, U=number]>}     A generator for [value, index] iteration
      */
     entries(): IterableIterator<[T, Any]>;
+}
+
+
+export type IterableAlgorithmsEachFunction<Type, DataType> = (value: DataType, index: number, thisArg: Type | undefined) => void;
+
+export type IterableAlgorithmsFindFunction<Type, DataType> = (value: DataType, index: number, thisArg: Type | undefined) => boolean;
+
+export interface IterableAlgorithms<Type, DataType> {
+    has(value: DataType, fn: CompareFunc<DataType>): boolean;
+    
+    sort(fn: CompareNumberFunc<DataType>): Type;
+
+    find(fn: IterableAlgorithmsFindFunction<Type, DataType>): DataType | undefined;
+
+    each(fn: IterableAlgorithmsEachFunction<Type, DataType>, thisArg: Type | undefined): void;
 }
 

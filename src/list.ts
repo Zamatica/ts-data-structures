@@ -4,12 +4,13 @@
  */
 
 import { Any } from "./util/object";
-import { CompareFunc, CompareNumberFunc } from "./util/func";
 import { NaN } from './util/number';
 
-import { IterableStructure } from './iterableStructure'
+import { IterableStructure, IterableAlgorithms } from './iterableStructure'
+import { StandardOpertors } from './operators/standard';
 import { MathOperators } from './operators/math';
-
+import { LogicalComparisonOperators, CompareFunc, CompareNumberFunc } from './operators/comparison';
+import { TransformOperators } from './operators/transform';
 
 /**
  * Node Container for a List
@@ -39,8 +40,12 @@ interface LinkedListMath<T> {
 /**
  * Linked List Implementation
  */
-export class LinkedList<T> implements IterableStructure<T>,
-                                      MathOperators<LinkedList<T>, LinkedListMath<T>> {
+export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
+                                      IterableStructure<T>,
+                                      IterableAlgorithms<LinkedList<T>, T>,
+                                      TransformOperators<LinkedList<T>, T>,
+                                      MathOperators<LinkedList<T>, LinkedListMath<T>>,
+                                      LogicalComparisonOperators<LinkedList<T>> {
 
     /**
      * Creates a node for the List
@@ -140,25 +145,6 @@ export class LinkedList<T> implements IterableStructure<T>,
     }
 
     /**
-     * Checks if a value is stored in the list; O(n)
-     * @param {T}   value     The object to check for in the list
-     * @returns 
-     */
-    has(value: T, fn: CompareFunc<T> | undefined = undefined): boolean {
-        const compare_func = fn || function (lhs, rhs) {
-            return lhs === rhs;
-        }
-
-        for (const data of this) {
-            if (compare_func(data, value)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Clears all items in the list; O(1)
      */
     clear(): void {
@@ -188,36 +174,6 @@ export class LinkedList<T> implements IterableStructure<T>,
     }
 
     /**
-     * Compares the contents of two LinkedList; Θ(n)
-     * @param {LinkedList<T>}                other       The LinkedList to compare to
-     * @param {CompareFunc<T> | undefined}   compare     A custom compare function for objects, returns a boolean
-     * @returns                                          Whether the two list's items are equal
-     */
-    equals(other: LinkedList<T>, compare: CompareFunc<T> | undefined = undefined): boolean {
-        if (other._length !== this._length) {
-            return false;
-        }
-
-        let node: ListNode<T> | null = this.head;
-        let other_node: ListNode<T> | null = other.head;
-
-        const compare_func = compare || function (lhs: T, rhs: T) { 
-            return lhs === rhs;
-        }
-
-        while (node !== null && other_node !== null) {
-            if (compare_func(node.data, other_node.data) === false) {
-                return false;
-            }
-
-            node = node.next;
-            other_node = other_node.next;
-        }
-
-        return true;
-    }
-
-    /**
      * Concats two LinkedList via shallow copy; Θ(other.length + this.length)
      * @param {...LinkedList<T>[]}   lists     The list to append to this
      * @returns                                A new shallow copied LinkedList containing the two list
@@ -234,151 +190,7 @@ export class LinkedList<T> implements IterableStructure<T>,
         return final_list;
     }
 
-    /**
-     * Sorts the List, modifying the order; O(n*log(n)) for large arrays, O(n^2) for small
-     * @param {CompareNumberFunc<T> | undefined}   fn     Comparison function for Array.sort
-     * @returns                                           this
-     */
-    sort(fn: CompareNumberFunc<T> | undefined = undefined): LinkedList<T> {
-        const sorted_arr = this.toArray().sort(fn);
-
-        let node: ListNode<T> | null =  this.head;
-        let index: number = 0;
-
-        while (node !== null) {
-            node.data = sorted_arr[index];
-            
-            node = node.next;
-            ++index;
-        }
-
-        return this;
-    }
-
-    /**
-     * Finds a value in the LinkedList; O(n)
-     * @param {Callback}                    fn           Callback for finding an object
-     * @param {LinkedList<T> | undefined}   thisArg      The object to work on
-     * @returns {T | undefined}                          Matching data from the List, or undefined if nothing matches
-     */
-    find(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): T | undefined {
-        if (thisArg !== undefined) {
-            fn = fn.bind(thisArg);
-        }
-
-        for (const [data, i] of this.entries()) {
-            if (fn(data, i, this) === true) {
-                return data;
-            }
-        }
-
-        return undefined;
-    }
-
-    /**
-     * Filters the List based on a conditional function; Θ(n)
-     * @param {Callback}                    fn           Callback for filtering each object
-     * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
-     * @returns {LinkedList<T>}                          LinkedList of all objects matching the condition
-     */
-    filter(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
-        const filtered_list: LinkedList<T> = new LinkedList<T>();
-        
-        if (thisArg !== undefined) {
-            fn = fn.bind(thisArg);
-        }
-
-        for (const [data, i] of this.entries()) {
-            if (fn(data, i, this) === true) {
-                filtered_list.push(data);
-            }
-        }
-
-        return filtered_list;
-    }
-
-    /**
-     * Iterates over each object and passes to a function; Θ(n)
-     * @param {Callback}                    fn           Callback for each object
-     * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
-     */
-    each(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => void, thisArg: LinkedList<T> | undefined = undefined): void {
-        if (thisArg !== undefined) {
-            fn = fn.bind(thisArg);
-        }
-
-        for (const [data, i] of this.entries()) {
-            fn(data, i, this);
-        }
-    }
-
-    /**
-     * Reduces the LinkedList based on some operation to one value; Θ(n)
-     * @param {Callback}          fn               The operation to reduce the List by
-     * @param {any | undefined}   initialValue     The  initialValue of the accumulating value
-     * @returns                                    The result of the reduction
-     */
-    reduce(fn: (accumulator: T, currentvalue: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {
-        let accumulator: Any | undefined = initialValue;
-
-        for (const [data, i] of this.entries()) {
-            if (accumulator === undefined) {
-                accumulator = data;
-                continue;
-            }
-
-            accumulator = fn(accumulator, data, i, this);
-        }
-
-        return accumulator;
-    }
-
-    /**
-     * Transform each object by a provided function, returns a new LinkedList<T>; Θ(n)
-     * @param {Callback}                    fn          The operation to transform the List items by
-     * @param {LinkedList<T> | undefined}   thisArg     The object to work on
-     * @returns                                         new LinkedList<T> with the Results of the mapping
-     */
-    map(fn: (value: T, index: number | undefined, thisArg: LinkedList<T> | undefined) => T, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
-        if (thisArg !== undefined) {
-            fn = fn.bind(thisArg);
-        }
-        
-        const result: LinkedList<T> = new LinkedList<T>();
-
-        for (const [data, i] of this.entries()) {
-            result.push(fn(data, i, this));
-        }
-
-        return result;
-    }
-
-    // --------------- MATH --------------- //
-
-    add(rhs: LinkedList<T>): LinkedList<T> {
-        const result = this.clone();
-
-        return result.addEqual(rhs);
-    }
-
-    addEqual(rhs: LinkedList<T>): this {
-        for (const data of rhs) {
-            this.push(data);
-        }
-
-        return this;
-    }
-
-    subtract(): NaN { return NaN; }
-    subtractEqual(): this { return this; }
-
-    multiply(): NaN { return NaN; }
-    multiplyEqual(): this { return this; }
-
-    divide(): NaN { return NaN; }
-    divideEqual(): this { return this; }
-
-    // --------------- INTERFACE --------------- //
+    // --------------- ITERABLE --------------- //
 
     /**
      * Iterator method that allows the user of for..of and for..in
@@ -425,6 +237,215 @@ export class LinkedList<T> implements IterableStructure<T>,
             ++index;
         }
     }
+
+    // --------------- ITERAABLE ALGORITHMS --------------- //
+
+    /**
+     * Iterates over each object and passes to a function; Θ(n)
+     * @param {Callback}                    fn           Callback for each object
+     * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
+     */
+    each(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => void, thisArg: LinkedList<T> | undefined = undefined): void {
+        if (thisArg !== undefined) {
+            fn = fn.bind(thisArg);
+        }
+
+        for (const [data, i] of this.entries()) {
+            fn(data, i, this);
+        }
+    }
+
+    /**
+     * Sorts the List, modifying the order; O(n*log(n)) for large arrays, O(n^2) for small
+     * @param {CompareNumberFunc<T> | undefined}   fn     Comparison function for Array.sort
+     * @returns                                           this
+     */
+    sort(fn: CompareNumberFunc<T> | undefined = undefined): LinkedList<T> {
+        fn = fn || function(lhs: T, rhs: T): number {
+            if ((lhs as Any).subtractTest) {
+                return (lhs as Any).subtractTest(rhs);
+            }
+        }
+
+        const sorted_arr = this.toArray().sort(fn);
+
+        let node: ListNode<T> | null =  this.head;
+        let index: number = 0;
+
+        while (node !== null) {
+            node.data = sorted_arr[index];
+            
+            node = node.next;
+            ++index;
+        }
+
+        return this;
+    }
+
+    /**
+     * Checks if a value is stored in the list; O(n)
+     * @param {T}   value     The object to check for in the list
+     * @returns 
+     */
+    has(value: T, fn: CompareFunc<T> | undefined = undefined): boolean {
+        const compare_func = fn || function (lhs, rhs) {
+            return lhs === rhs;
+        }
+
+        for (const data of this) {
+            if (compare_func(data, value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Finds a value in the LinkedList; O(n)
+     * @param {Callback}                    fn           Callback for finding an object
+     * @param {LinkedList<T> | undefined}   thisArg      The object to work on
+     * @returns {T | undefined}                          Matching data from the List, or undefined if nothing matches
+     */
+    find(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): T | undefined {
+        if (thisArg !== undefined) {
+            fn = fn.bind(thisArg);
+        }
+
+        for (const [data, i] of this.entries()) {
+            if (fn(data, i, this) === true) {
+                return data;
+            }
+        }
+
+        return undefined;
+    }
+
+    // --------------- TRANSFORM --------------- //
+
+    /**
+     * Filters the List based on a conditional function; Θ(n)
+     * @param {Callback}                    fn           Callback for filtering each object
+     * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
+     * @returns {LinkedList<T>}                          LinkedList of all objects matching the condition
+     */
+    filter(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => boolean, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
+        const filtered_list: LinkedList<T> = new LinkedList<T>();
+        
+        if (thisArg !== undefined) {
+            fn = fn.bind(thisArg);
+        }
+
+        for (const [data, i] of this.entries()) {
+            if (fn(data, i, this) === true) {
+                filtered_list.push(data);
+            }
+        }
+
+        return filtered_list;
+    }
+
+    /**
+     * Reduces the LinkedList based on some operation to one value; Θ(n)
+     * @param {Callback}          fn               The operation to reduce the List by
+     * @param {any | undefined}   initialValue     The  initialValue of the accumulating value
+     * @returns                                    The result of the reduction
+     */
+    reduce(fn: (accumulator: T, currentvalue: T, index: number, thisArg: LinkedList<T> | undefined) => Any, initialValue: Any | undefined = undefined): Any {
+        let accumulator: Any | undefined = initialValue;
+
+        for (const [data, i] of this.entries()) {
+            if (accumulator === undefined) {
+                accumulator = data;
+                continue;
+            }
+
+            accumulator = fn(accumulator, data, i, this);
+        }
+
+        return accumulator;
+    }
+
+    /**
+     * Transform each object by a provided function, returns a new LinkedList<T>; Θ(n)
+     * @param {Callback}                    fn          The operation to transform the List items by
+     * @param {LinkedList<T> | undefined}   thisArg     The object to work on
+     * @returns                                         new LinkedList<T> with the Results of the mapping
+     */
+    map(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => T, thisArg: LinkedList<T> | undefined = undefined): LinkedList<T> {
+        if (thisArg !== undefined) {
+            fn = fn.bind(thisArg);
+        }
+        
+        const result: LinkedList<T> = new LinkedList<T>();
+
+        for (const [data, i] of this.entries()) {
+            result.push(fn(data, i, this));
+        }
+
+        return result;
+    }
+
+    // --------------- LOGICAL COMPARISON --------------- //
+
+    /**
+     * Compares the contents of two LinkedList; Θ(n)
+     * @param {LinkedList<T>}                other       The LinkedList to compare to
+     * @param {CompareFunc<T> | undefined}   compare     A custom compare function for objects, returns a boolean
+     * @returns                                          Whether the two list's items are equal
+     */
+    equals(other: LinkedList<T>, compare: CompareFunc<T> | undefined = undefined): boolean {
+        if (other._length !== this._length) {
+            return false;
+        }
+
+        let node: ListNode<T> | null = this.head;
+        let other_node: ListNode<T> | null = other.head;
+
+        const compare_func = compare || function (lhs: T, rhs: T) { 
+            return lhs === rhs;
+        }
+
+        while (node !== null && other_node !== null) {
+            if (compare_func(node.data, other_node.data) === false) {
+                return false;
+            }
+
+            node = node.next;
+            other_node = other_node.next;
+        }
+
+        return true;
+    }
+
+    isGreaterThan(): boolean { return false; }
+
+    isLessThan(): boolean { return false; }
+
+    // --------------- MATH --------------- //
+
+    add(rhs: LinkedList<T>): LinkedList<T> {
+        const result = this.clone();
+
+        return result.addEqual(rhs);
+    }
+
+    addEqual(rhs: LinkedList<T>): this {
+        for (const data of rhs) {
+            this.push(data);
+        }
+
+        return this;
+    }
+
+    subtract(): NaN { return NaN; }
+    subtractEqual(): this { return this; }
+
+    multiply(): NaN { return NaN; }
+    multiplyEqual(): this { return this; }
+
+    divide(): NaN { return NaN; }
+    divideEqual(): this { return this; }
 
     // --------------- PRIVATE --------------- //
 

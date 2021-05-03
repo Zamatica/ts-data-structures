@@ -38,7 +38,7 @@ export type IterableAlgorithmsEachFunction<Type, DataType> = (value: DataType, i
 
 export type IterableAlgorithmsFindFunction<Type, DataType> = (value: DataType, index: number, thisArg: Type | undefined) => boolean;
 
-export interface IterableAlgorithms<Type, DataType> {
+export interface IterableAlgorithmsStructure<Type, DataType> extends IterableStructure<DataType> {
     has(value: DataType, fn: CompareFunc<DataType>): boolean;
     
     sort(fn: CompareNumberFunc<DataType>): Type;

@@ -4,12 +4,10 @@
  */
 
 import { Any } from "./util/object";
-import { NaN } from './util/number';
 
-import { IterableStructure, IterableAlgorithms } from './iterableStructure'
+import { IterableAlgorithmsStructure } from './iterableStructure'
 import { StandardOpertors } from './operators/standard';
-import { MathOperators } from './operators/math';
-import { LogicalComparisonOperators, CompareFunc, CompareNumberFunc } from './operators/comparison';
+import { LogicalComparisonOperators, CompareFunc, CompareNumberFunc, subtractionTest } from './operators/comparison';
 import { TransformOperators } from './operators/transform';
 
 /**
@@ -27,31 +25,19 @@ export interface ListNode<T> {
     next: ListNode<T> | null;
 }
 
-interface LinkedListMath<T> {
-    AddReturnType: LinkedList<T>;
-
-    SubtractReturnType: NaN;
-
-    MultipleReturnType: NaN;
-
-    DivideReturnType: NaN;
-}
-
 /**
  * Linked List Implementation
  */
 export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
-                                      IterableStructure<T>,
-                                      IterableAlgorithms<LinkedList<T>, T>,
+                                      IterableAlgorithmsStructure<LinkedList<T>, T>,
                                       TransformOperators<LinkedList<T>, T>,
-                                      MathOperators<LinkedList<T>, LinkedListMath<T>>,
                                       LogicalComparisonOperators<LinkedList<T>> {
 
     /**
      * Creates a node for the List
-     * @param                  {T}   data      The object to store in the node
-     * @param {ListNode<T> | null}   next      Pointer to the next node
-     * @returns                                Node created from the data
+     * @param {T}             data      The object to store in the node
+     * @param {ListNode<T>}   next      Pointer to the next node
+     * @returns                         Node created from the data
      */
     static createNode<T>(data: T): ListNode<T> {
         return { data, next: null }
@@ -261,11 +247,7 @@ export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
      * @returns                                           this
      */
     sort(fn: CompareNumberFunc<T> | undefined = undefined): LinkedList<T> {
-        fn = fn || function(lhs: T, rhs: T): number {
-            if ((lhs as Any).subtractTest) {
-                return (lhs as Any).subtractTest(rhs);
-            }
-        }
+        fn = fn || subtractionTest;
 
         const sorted_arr = this.toArray().sort(fn);
 
@@ -421,31 +403,6 @@ export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
     isGreaterThan(): boolean { return false; }
 
     isLessThan(): boolean { return false; }
-
-    // --------------- MATH --------------- //
-
-    add(rhs: LinkedList<T>): LinkedList<T> {
-        const result = this.clone();
-
-        return result.addEqual(rhs);
-    }
-
-    addEqual(rhs: LinkedList<T>): this {
-        for (const data of rhs) {
-            this.push(data);
-        }
-
-        return this;
-    }
-
-    subtract(): NaN { return NaN; }
-    subtractEqual(): this { return this; }
-
-    multiply(): NaN { return NaN; }
-    multiplyEqual(): this { return this; }
-
-    divide(): NaN { return NaN; }
-    divideEqual(): this { return this; }
 
     // --------------- PRIVATE --------------- //
 

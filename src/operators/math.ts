@@ -25,16 +25,16 @@ export interface MathOperators<Type,
             DivideReturnType: DivideReturnType }> {
 
     add(rhs: MathOperators<Type, ReturnTypes>): AddReturnType;
-    addEqual(rhs: MathOperators<Type, ReturnTypes>): Type;
+    addEqual(rhs: MathOperators<Type, ReturnTypes>): MathOperators<Type, ReturnTypes>;
 
     subtract(rhs: MathOperators<Type, ReturnTypes>): SubtractReturnType;
-    subtractEqual(rhs: MathOperators<Type, ReturnTypes>): Type;
+    subtractEqual(rhs: MathOperators<Type, ReturnTypes>): MathOperators<Type, ReturnTypes>;
 
     multiply(rhs: MathOperators<Type, ReturnTypes>): MultiplyReturnType;
-    multiplyEqual(rhs: MathOperators<Type, ReturnTypes>): Type;
+    multiplyEqual(rhs: MathOperators<Type, ReturnTypes>): MathOperators<Type, ReturnTypes>;
 
     divide(rhs: MathOperators<Type, ReturnTypes>): DivideReturnType;
-    divideEqual(rhs: MathOperators<Type, ReturnTypes>): Type;
+    divideEqual(rhs: MathOperators<Type, ReturnTypes>): MathOperators<Type, ReturnTypes>;
 }
 
 export interface GenericMathOperatorReturnTypes {

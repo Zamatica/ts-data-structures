@@ -3,9 +3,8 @@
  * @file       comparison.ts
  */
 
-import { Any } from '../util/object';
-import { AboveSameBelow } from '../util/number';
 import { GenericMathOperator } from './math';
+import { PrimitiveTypes } from '../util/primitives';
 
 export type CompareFunc<T> = (lhs: T, rhs: T) => boolean;
 
@@ -22,20 +21,23 @@ export interface LogicalComparisonOperators<Type> {
 }
 
 export interface NumberComparisonOperators<Type> {
-    subtractTest(rhs: NumberComparisonOperators<Type>): AboveSameBelow;
+    subtractTest(rhs: NumberComparisonOperators<Type>): number;
 }
 
+export type subtractionTestType<T> = (lhs: NumberComparisonOperators<T> | GenericMathOperator<T> | PrimitiveTypes, rhs: NumberComparisonOperators<T> | GenericMathOperator<T> | PrimitiveTypes) => number;
 
-
-export function subtractionTest<T>(lhs: T, rhs: T): Any {
-    const type_checks: Any = lhs;
-    if ((type_checks as NumberComparisonOperators<T>).subtractTest) {
-        return (type_checks as NumberComparisonOperators<T>).subtractTest(rhs);
-    }
-    else if ((type_checks as GenericMathOperator<T>).subtract) {
-        return (type_checks as GenericMathOperator<T>).subtract((rhs as Any) as GenericMathOperator<T>);
+export function subtractionTest<T>(lhs: T | NumberComparisonOperators<T> | GenericMathOperator<T> | PrimitiveTypes, rhs: T | NumberComparisonOperators<T> | GenericMathOperator<T> | PrimitiveTypes): number {
+    if (typeof(lhs) === 'string' || typeof(lhs) === 'number' || typeof(lhs) === 'boolean') {
+        return (lhs as number) - (rhs as number);
     }
 
-    return (lhs as Any) - (rhs as Any);
+    if ((lhs as NumberComparisonOperators<T>).subtractTest) {
+        return (lhs as NumberComparisonOperators<T>).subtractTest(rhs as NumberComparisonOperators<T>);
+    }
+    else if ((lhs as GenericMathOperator<T>).subtract) {
+        return (lhs as GenericMathOperator<T>).subtract(rhs as GenericMathOperator<T>);
+    }
+
+    return -1;
 }
 

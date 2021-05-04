@@ -247,9 +247,9 @@ export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
      * @returns                                           this
      */
     sort(fn: CompareNumberFunc<T> | undefined = undefined): LinkedList<T> {
-        fn = fn || subtractionTest;
+        const compare = fn || subtractionTest;
 
-        const sorted_arr = this.toArray().sort(fn);
+        const sorted_arr = this.toArray().sort(compare);
 
         let node: ListNode<T> | null =  this.head;
         let index: number = 0;

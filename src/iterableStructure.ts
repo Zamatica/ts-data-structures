@@ -5,18 +5,19 @@
 
 import { Any } from './util/object';
 import { CompareFunc, CompareNumberFunc } from './operators/comparison';
+import { StandardOpertors } from './operators/standard';
 
 export interface IterableStructure<T> {
 
     /**
      * Iterator method that allows the user of for..of and for..in
-     * @yields {T}     value of the Object stored
+     * @yields {IterableIterator<T>}     value of the Object stored
      */
     [Symbol.iterator](): IterableIterator<T>;
 
     /**
      * Gets a generator to iterate with .next()
-     * @returns {Generator<T, Any, Any>}     Generator to iterate the data in the LinkedList
+     * @returns {IterableIterator<T>}     Generator to iterate the data in the LinkedList
      */
     iterator(): IterableIterator<T>;
 
@@ -34,11 +35,30 @@ export interface IterableStructure<T> {
 }
 
 
-export type IterableAlgorithmsEachFunction<Type, DataType> = (value: DataType, index: number, thisArg: Type | undefined) => void;
+/**
+ * ((value: DataType) => Return)  
+ * ((value: DataType, index: number) => Return)  
+ * ((value: DataType, index: number, thisArg: Type) => Return);
+ */
+export type IterableAlgorithmsFunction<Type, DataType, Return> = ((value: DataType) => Return) | 
+                                                                 ((value: DataType, index: number) => Return) |
+                                                                 ((value: DataType, index: number, thisArg: Type) => Return);
+                                                                 
+/**
+ * ((value: DataType) => void)  
+ * ((value: DataType, index: number) => void)  
+ * ((value: DataType, index: number, thisArg: Type) => void);
+ */
+export type IterableAlgorithmsEachFunction<Type, DataType> =  IterableAlgorithmsFunction<Type, DataType, void>;
 
-export type IterableAlgorithmsFindFunction<Type, DataType> = (value: DataType, index: number, thisArg: Type | undefined) => boolean;
+/**
+ * ((value: DataType) => boolean) |  
+ * ((value: DataType, index: number) => boolean) |  
+ * ((value: DataType, index: number, thisArg: Type) => boolean);
+ */
+export type IterableAlgorithmsFindFunction<Type, DataType> = IterableAlgorithmsFunction<Type, DataType, boolean>;
 
-export interface IterableAlgorithmsStructure<Type, DataType> extends IterableStructure<DataType> {
+export interface IterableAlgorithmsStructure<Type, DataType> extends IterableStructure<DataType>, StandardOpertors<Type, DataType> {
     has(value: DataType, fn: CompareFunc<DataType>): boolean;
     
     sort(fn: CompareNumberFunc<DataType>): Type;

@@ -5,10 +5,16 @@
 
 import { Any } from "./util/object";
 
+// Operators
 import { IterableAlgorithmsStructure } from './iterableStructure'
 import { StandardOpertors } from './operators/standard';
 import { LogicalComparisonOperators, CompareFunc, CompareNumberFunc, subtractionTest } from './operators/comparison';
 import { TransformOperators } from './operators/transform';
+
+// Iteration
+import { each } from './algorithms/iteration/each';
+
+
 
 /**
  * Node Container for a List
@@ -28,8 +34,7 @@ export interface ListNode<T> {
 /**
  * Linked List Implementation
  */
-export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
-                                      IterableAlgorithmsStructure<LinkedList<T>, T>,
+export class LinkedList<T> implements IterableAlgorithmsStructure<LinkedList<T>, T>,
                                       TransformOperators<LinkedList<T>, T>,
                                       LogicalComparisonOperators<LinkedList<T>> {
 
@@ -196,7 +201,7 @@ export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
      * Gets a generator to iterate with .next()
      * @returns {IterableIterator<T>}     Generator to iterate the data in the LinkedList
      */
-    iterator(): IterableIterator<T> {
+    *iterator(): IterableIterator<T> {
         return this[Symbol.iterator]();
     }
 
@@ -232,13 +237,7 @@ export class LinkedList<T> implements StandardOpertors<LinkedList<T>, T>,
      * @param {LinkedList<T> | undefined}   thisArg      The object to work on 
      */
     each(fn: (value: T, index: number, thisArg: LinkedList<T> | undefined) => void, thisArg: LinkedList<T> | undefined = undefined): void {
-        if (thisArg !== undefined) {
-            fn = fn.bind(thisArg);
-        }
-
-        for (const [data, i] of this.entries()) {
-            fn(data, i, this);
-        }
+        each(this, fn);
     }
 
     /**
